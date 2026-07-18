@@ -102,13 +102,22 @@ describe("formatAmount", () => {
     expect(formatAmount(397.6608187134503)).toBe("398"); // agua baguette 1000 g
   });
 
-  it("borde alrededor de 10: la rama depende de n<10, no del valor mostrado", () => {
-    // 9.96 < 10 -> toma la rama toFixed(1), que redondea a "10.0"
-    expect(formatAmount(9.96)).toBe("10.0");
+  it("borde alrededor de 10: la rama se decide con el valor ya redondeado a 1 decimal", () => {
+    // justo por debajo: rounded1 = 9.9 < 10 -> decimal
+    expect(formatAmount(9.949999)).toBe("9.9");
+    // borde inferior conflictivo: rounded1 = 10 -> entero
+    expect(formatAmount(9.95)).toBe("10");
+    // antes era "10.0"; ahora rounded1 = 10 -> entero
+    expect(formatAmount(9.96)).toBe("10");
+    // borde superior conflictivo: rounded1 = 10 -> entero
+    expect(formatAmount(9.999)).toBe("10");
     // exactamente 10 -> rama Math.round -> "10"
     expect(formatAmount(10)).toBe("10");
     // 10.4 -> "10", 10.6 -> "11"
     expect(formatAmount(10.4)).toBe("10");
     expect(formatAmount(10.6)).toBe("11");
+    // bien por debajo y bien por encima: comportamiento sin cambios
+    expect(formatAmount(3.456)).toBe("3.5");
+    expect(formatAmount(234.6)).toBe("235");
   });
 });

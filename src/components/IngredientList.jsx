@@ -1,7 +1,7 @@
 import { colors, fonts, radius, shadow } from "../styles/theme.js";
 import { formatAmount } from "../lib/baker.js";
 
-export default function IngredientList({ recipeName, accent, scaled }) {
+export default function IngredientList({ recipeName, accent, scaled, t }) {
   return (
     <div
       style={{
@@ -12,7 +12,7 @@ export default function IngredientList({ recipeName, accent, scaled }) {
       }}
     >
       <h2 style={{ fontFamily: fonts.serif, fontSize: "1.3rem", margin: "0 0 1rem", color: accent }}>
-        Ingredientes — {recipeName}
+        {t("ingredients.heading", { recipeName })}
       </h2>
       <div style={{ display: "grid", gap: "0.55rem" }}>
         {scaled.map((ing) => (

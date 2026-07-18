@@ -1,6 +1,6 @@
 import { colors, layout } from "../styles/theme.js";
 
-export default function Footer() {
+export default function Footer({ t }) {
   return (
     <footer
       style={{
@@ -11,8 +11,7 @@ export default function Footer() {
         color: colors.faint,
       }}
     >
-      Las cantidades se calculan por porcentaje de panadero, así que la proporción entre
-      ingredientes se mantiene sin importar cuánto pan quieras hacer.
+      {t("footer.note")}
     </footer>
   );
 }

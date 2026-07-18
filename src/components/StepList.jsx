@@ -1,6 +1,6 @@
 import { colors, fonts, radius, shadow } from "../styles/theme.js";
 
-export default function StepList({ steps, accent }) {
+export default function StepList({ steps, accent, t }) {
   return (
     <div
       style={{
@@ -11,7 +11,7 @@ export default function StepList({ steps, accent }) {
       }}
     >
       <h2 style={{ fontFamily: fonts.serif, fontSize: "1.3rem", margin: "0 0 1rem", color: accent }}>
-        Procedimiento
+        {t("steps.heading")}
       </h2>
       <ol style={{ margin: 0, paddingLeft: "1.2rem", display: "grid", gap: "0.65rem" }}>
         {steps.map((step, i) => (

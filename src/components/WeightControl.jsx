@@ -1,6 +1,6 @@
 import { colors, fonts, radius, shadow, layout } from "../styles/theme.js";
 
-export default function WeightControl({ targetWeight, onChange, accent }) {
+export default function WeightControl({ targetWeight, onChange, accent, t }) {
   return (
     <section
       style={{
@@ -28,7 +28,7 @@ export default function WeightControl({ targetWeight, onChange, accent }) {
           htmlFor="weight-slider"
           style={{ fontFamily: fonts.serif, fontSize: "1rem", fontWeight: 600, color: colors.subtext }}
         >
-          Peso total de la masa
+          {t("weight.label")}
         </label>
         <div style={{ fontFamily: fonts.serif, fontSize: "2rem", fontWeight: 700, color: accent }}>
           {targetWeight >= 1000

@@ -1,14 +1,36 @@
 import { colors, fonts, layout } from "../styles/theme.js";
 
-export default function Header({ theme, onToggleTheme }) {
+export default function Header({ theme, onToggleTheme, locale, onToggleLocale, t }) {
   const isDark = theme === "dark";
   return (
     <header style={{ padding: "3rem 1.5rem 1.5rem", maxWidth: layout.maxWidth, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginBottom: "0.5rem" }}>
+        <button
+          type="button"
+          onClick={onToggleLocale}
+          aria-label={t("header.localeToggleAria")}
+          style={{
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            border: `1px solid ${colors.border}`,
+            background: colors.surface,
+            color: colors.subtext,
+            borderRadius: "999px",
+            padding: "0.4rem 0.85rem",
+            fontFamily: fonts.sans,
+            fontSize: "0.85rem",
+            fontWeight: 600,
+          }}
+        >
+          <span aria-hidden="true">🌐</span>
+          {t("header.localeLabel")}
+        </button>
         <button
           type="button"
           onClick={onToggleTheme}
-          aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+          aria-label={isDark ? t("header.themeToLight") : t("header.themeToDark")}
           aria-pressed={isDark}
           style={{
             cursor: "pointer",
@@ -26,7 +48,7 @@ export default function Header({ theme, onToggleTheme }) {
           }}
         >
           <span aria-hidden="true">{isDark ? "☀️" : "🌙"}</span>
-          {isDark ? "Claro" : "Oscuro"}
+          {isDark ? t("header.themeLabelLight") : t("header.themeLabelDark")}
         </button>
       </div>
       <div
@@ -40,7 +62,7 @@ export default function Header({ theme, onToggleTheme }) {
           fontWeight: 600,
         }}
       >
-        Cuaderno de panadería
+        {t("header.eyebrow")}
       </div>
       <h1
         style={{
@@ -51,7 +73,7 @@ export default function Header({ theme, onToggleTheme }) {
           lineHeight: 1.05,
         }}
       >
-        Seis panes, un solo peso.
+        {t("header.title")}
       </h1>
       <p
         style={{
@@ -62,8 +84,7 @@ export default function Header({ theme, onToggleTheme }) {
           lineHeight: 1.5,
         }}
       >
-        Elige una receta, decide cuánto pan quieres hoy, y cada ingrediente se ajusta solo — en
-        gramos y mililitros.
+        {t("header.subtitle")}
       </p>
     </header>
   );

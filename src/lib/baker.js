@@ -11,6 +11,7 @@ export function scaleRecipe(recipe, targetWeightG) {
 }
 
 export function formatAmount(n) {
-  if (n < 10) return n.toFixed(1);
+  const rounded1 = Math.round(n * 10) / 10; // valor a 1 decimal
+  if (rounded1 < 10) return rounded1.toFixed(1);
   return Math.round(n).toString();
 }
