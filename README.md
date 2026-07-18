@@ -3,6 +3,14 @@
 Recetas de pan que se escalan por porcentaje de panadero: elige una receta y un peso total de
 masa, y cada ingrediente se recalcula al instante en gramos y mililitros.
 
+## Características
+
+- **Cálculo por porcentaje de panadero**: 6 recetas, reescalado lineal al peso de masa deseado.
+- **PWA instalable + offline**: se puede "agregar a la pantalla de inicio" y funciona sin conexión
+  tras la primera visita.
+- **Modo claro/oscuro**: toggle en la cabecera; respeta la preferencia del sistema y la recuerda.
+- **Responsive**: pensada para el móvil, se adapta a pantallas anchas.
+
 ## Requisitos
 
 - Node 18+ y npm.
@@ -11,10 +19,13 @@ masa, y cada ingrediente se recalcula al instante en gramos y mililitros.
 
 ```bash
 npm install
-npm run dev      # abre http://localhost:5173
-npm run build    # genera dist/
-npm run preview  # sirve el build local
+npm run dev      # abre http://localhost:5173 (sin service worker)
+npm run build    # genera dist/ (incluye sw.js + manifest.webmanifest)
+npm run preview  # sirve el build local (aquí se puede probar la PWA)
+npm test         # tests de la lógica de escalado (Vitest)
 ```
+
+> La PWA (instalable/offline) solo se comprueba en `build` + `preview`, no en `dev`.
 
 ## Deploy en Netlify (gratis)
 

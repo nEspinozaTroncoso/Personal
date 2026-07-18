@@ -5,11 +5,13 @@ import IngredientList from "./components/IngredientList.jsx";
 import StepList from "./components/StepList.jsx";
 import Footer from "./components/Footer.jsx";
 import { useRecipeScaling } from "./hooks/useRecipeScaling.js";
+import { useTheme } from "./hooks/useTheme.js";
 import { colors, fonts, layout } from "./styles/theme.js";
 
 export default function App() {
   const { recipes, activeId, setActiveId, targetWeight, setTargetWeight, recipe, scaled } =
     useRecipeScaling();
+  const { theme, toggle } = useTheme();
 
   return (
     <div
@@ -21,7 +23,7 @@ export default function App() {
         paddingBottom: "4rem",
       }}
     >
-      <Header />
+      <Header theme={theme} onToggleTheme={toggle} />
       <RecipeSelector recipes={recipes} activeId={activeId} onSelect={setActiveId} />
       <WeightControl targetWeight={targetWeight} onChange={setTargetWeight} accent={recipe.accent} />
       <main

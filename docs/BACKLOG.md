@@ -11,9 +11,6 @@ Prioridades: `P1` alto · `P2` medio · `P3` bajo. Estados: `pendiente` · `en p
 
 | ID | Título | Prioridad | Estado | Notas |
 |----|--------|-----------|--------|-------|
-| B-03 | Persistir receta/peso favorito en `localStorage` | P2 | pendiente | Recordar la última selección al reabrir. |
-| B-04 | Modo oscuro con toggle | P2 | pendiente | Los tokens de `theme.js` lo facilitan. Depende de B-00. |
-| B-05 | Buscador/filtro de recetas | P2 | pendiente | Escala bien cuando haya más de 6 recetas. |
 | B-06 | Integración con API de recetas de pan | P3 | pendiente | Solo tras decidir proveedor. Ver `docs/APIS_RECETAS.md`. |
 | B-07 | Internacionalización (es/en) | P3 | pendiente | Extraer textos a diccionarios. |
 | B-08 | Compartir receta escalada por URL (query params) | P3 | pendiente | `?receta=baguette&peso=1000`. Requiere el redirect SPA de Netlify (ya previsto). |
@@ -26,9 +23,12 @@ Prioridades: `P1` alto · `P2` medio · `P3` bajo. Estados: `pendiente` · `en p
 | B-00 | Implementación general v1 (scaffold Vite + refactor modular + deploy Netlify) | hecho | Plan: `docs/plans/b-00-implementacion-general-v1.md`. `npm install` + `npm run build` ok; paridad de cálculo verificada. `BreadApp.jsx` conservado como referencia. |
 | B-01 | Tests unitarios de `baker.js` con Vitest | hecho | Plan: `docs/plans/b-01-tests-baker.md`. 10 tests en verde (`npm test`), build sin regresión. Observación anotada: `formatAmount(9.96) === "10.0"` fijado como comportamiento real. |
 | B-02 | PWA instalable + offline (manifest + service worker) | hecho | Plan: `docs/plans/b-02-pwa.md`. `vite-plugin-pwa` ^0.20.5, íconos PNG generados, precache de 17 entradas. Tests 10/10, build ok, `sw.js`+`manifest.webmanifest` en `dist/`. `src/` intacto. |
+| B-04 | Modo oscuro con toggle | hecho | Plan: `docs/plans/b-04-modo-oscuro.md`. CSS custom properties (`:root` / `[data-theme="dark"]`); hook `useTheme` (persiste en `panapp-theme`, respeta `prefers-color-scheme`); toggle accesible en Header; anti-FOUC + `theme-color` runtime. Tests 10/10, build ok, PWA intacta. |
+| B-03 | Persistir receta/peso favorito en `localStorage` | hecho | Plan: `docs/plans/b-03-persistencia-localstorage.md`. Persistencia inline en `useRecipeScaling` (claves `panapp-recipe`/`panapp-weight`), lazy init validado + `try/catch`. API del hook sin cambios; `App.jsx`/componentes intactos. Tests 10/10, build ok. Observación: si aparece un 3.º valor persistido, extraer helper `usePersistentState` y unificar con `useTheme`. |
+| B-05 | Buscador/filtro de recetas | hecho | Plan: `docs/plans/b-05-buscador-recetas.md`. Estado local en `RecipeSelector`; filtra `name`+`subtitle` con `normalize("NFD")` (insensible a acentos), `type="search"` accesible, "sin resultados" con `role="status"`. No cambia `activeId`. Solo toca `RecipeSelector.jsx` + `global.css`. Tests 10/10, build ok. |
 
 ---
 
 ### Siguiente item recomendado
-**B-04** (modo oscuro) — alto valor visible y bien apoyado por los tokens de `src/styles/theme.js`.
-Alternativa útil: **B-03** (persistir receta/peso en `localStorage`). Ambas independientes entre sí.
+**B-08** (compartir receta escalada por URL) — cierra el set P2/P3 de UX y aprovecha el redirect
+SPA ya previsto. Alternativas P3: **B-06** (API de recetas), **B-07** (i18n), **B-09** (redondeo).
