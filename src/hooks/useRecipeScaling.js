@@ -13,11 +13,12 @@ const DEFAULT_WEIGHT = 1000;
 
 // Lectura inicial validada de la receta activa.
 // Precedencia: URL (?receta=<id>, si es válida) -> localStorage -> primera receta (B-08).
-// Si no hay valor, o el id guardado ya no existe en RECIPES, cae a la primera receta.
-function getInitialRecipeId() {
+// Si no hay valor, o el id guardado ya no existe en `recipes` (built-in + custom, B-18), cae a la
+// primera receta de la lista recibida.
+function getInitialRecipeId(recipes) {
   if (typeof window !== "undefined") {
     const { recipeId } = parseShareParams(window.location.search, {
-      recipeIds: RECIPES.map((r) => r.id),
+      recipeIds: recipes.map((r) => r.id),
       minWeight: MIN_WEIGHT,
       maxWeight: MAX_WEIGHT,
     });
@@ -25,20 +26,20 @@ function getInitialRecipeId() {
   }
   try {
     const stored = localStorage.getItem(RECIPE_KEY);
-    if (stored && RECIPES.some((r) => r.id === stored)) return stored;
+    if (stored && recipes.some((r) => r.id === stored)) return stored;
   } catch {
     // localStorage no disponible (modo privado): se ignora
   }
-  return RECIPES[0].id;
+  return recipes[0].id;
 }
 
 // Lectura inicial validada del peso.
 // Precedencia: URL (?peso=<g>, si es válido) -> localStorage -> default (B-08).
 // Debe ser un número finito dentro de [MIN_WEIGHT, MAX_WEIGHT]; si no, cae al default (1000).
-function getInitialWeight() {
+function getInitialWeight(recipes) {
   if (typeof window !== "undefined") {
     const { weight } = parseShareParams(window.location.search, {
-      recipeIds: RECIPES.map((r) => r.id),
+      recipeIds: recipes.map((r) => r.id),
       minWeight: MIN_WEIGHT,
       maxWeight: MAX_WEIGHT,
     });
@@ -54,9 +55,12 @@ function getInitialWeight() {
   return DEFAULT_WEIGHT;
 }
 
-export function useRecipeScaling() {
-  const [activeId, setActiveId] = useState(getInitialRecipeId);
-  const [targetWeight, setTargetWeight] = useState(getInitialWeight);
+// `recipes` es la lista combinada (built-in + custom, B-18). Los inicializadores perezosos corren
+// una sola vez al montar; como useCustomRecipes también lee localStorage de forma síncrona antes
+// del primer render, las custom ya están presentes en `recipes` para entonces.
+export function useRecipeScaling(recipes = RECIPES) {
+  const [activeId, setActiveId] = useState(() => getInitialRecipeId(recipes));
+  const [targetWeight, setTargetWeight] = useState(() => getInitialWeight(recipes));
 
   // Deep link "de un solo uso" (B-08): tras leer receta/peso de la URL al montar (arriba, en los
   // inicializadores perezosos) se limpian de la barra de direcciones. El estado ya sembrado se
@@ -92,9 +96,11 @@ export function useRecipeScaling() {
     }
   }, [targetWeight]);
 
+  // Fallback si la receta activa fue borrada (custom eliminada, B-18): `find` devuelve undefined y
+  // scaleRecipe crashearía. recipes[0] es siempre una built-in, nunca undefined.
   const recipe = useMemo(
-    () => RECIPES.find((r) => r.id === activeId),
-    [activeId]
+    () => recipes.find((r) => r.id === activeId) ?? recipes[0],
+    [recipes, activeId]
   );
   const scaled = useMemo(
     () => scaleRecipe(recipe, targetWeight),
@@ -102,7 +108,7 @@ export function useRecipeScaling() {
   );
 
   return {
-    recipes: RECIPES,
+    recipes,
     activeId,
     setActiveId,
     targetWeight,

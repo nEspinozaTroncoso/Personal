@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { colors, fonts, radius, shadow, layout } from "../styles/theme.js";
 
 // Normaliza para búsqueda: minúsculas y sin acentos (NFD + descarte de diacríticos).
@@ -10,16 +10,37 @@ function normalize(str) {
     .replace(/[̀-ͯ]/g, ""); // descarta las marcas diacríticas combinantes
 }
 
-export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite, onToggleFavorite, t }) {
+export default function RecipeSelector({
+  recipes,
+  activeId,
+  onSelect,
+  isFavorite,
+  onToggleFavorite,
+  onNewRecipe,
+  onEditRecipe,
+  onDeleteRecipe,
+  t,
+}) {
   const [query, setQuery] = useState("");
 
-  // Orden congelado al montar: favoritas primero, preservando el orden de RECIPES dentro de cada
-  // grupo (sort estable). No se recalcula al marcar/desmarcar, para evitar que una receta "salte"
-  // de posición mientras el usuario interactúa (ver plan B-14, decisión 3).
-  const [orderedRecipes] = useState(() => {
-    const rank = (r) => (isFavorite("local", r.id) ? 0 : 1);
-    return [...recipes].sort((a, b) => rank(a) - rank(b));
+  // Orden de IDs congelado al montar: favoritas primero, preservando el orden de `recipes`
+  // (built-in + custom, B-18) dentro de cada grupo (sort estable). No se recalcula al
+  // marcar/desmarcar, para evitar que una receta "salte" de posición mientras el usuario
+  // interactúa (ver plan B-14, decisión 3). Solo se congela el ORDEN, no el contenido: los
+  // datos de cada receta siempre se leen en vivo de `recipes` más abajo, así que crear/editar/
+  // borrar una custom (B-18) se refleja de inmediato sin esperar a un remontaje. Las recetas
+  // nuevas que no estaban en el snapshot original se añaden al final; las borradas se excluyen.
+  const [order] = useState(() => {
+    const rank = (r) => (isFavorite(r.custom ? "custom" : "local", r.id) ? 0 : 1);
+    return [...recipes].sort((a, b) => rank(a) - rank(b)).map((r) => r.id);
   });
+
+  const orderedRecipes = useMemo(() => {
+    const byId = new Map(recipes.map((r) => [r.id, r]));
+    const known = order.filter((id) => byId.has(id)).map((id) => byId.get(id));
+    const newOnes = recipes.filter((r) => !order.includes(r.id));
+    return [...known, ...newOnes];
+  }, [recipes, order]);
 
   // Filtrado en cliente sobre name + subtitle. Con query vacío se muestran todas.
   const q = normalize(query.trim());
@@ -37,6 +58,33 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
         padding: "0 1.5rem",
       }}
     >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "0.6rem",
+        }}
+      >
+        <button
+          type="button"
+          className="share-button touch"
+          onClick={onNewRecipe}
+          style={{
+            cursor: "pointer",
+            border: `1px solid ${colors.border}`,
+            background: colors.surface,
+            color: colors.subtext,
+            borderRadius: radius.pill,
+            padding: "0.5rem 1.1rem",
+            fontFamily: fonts.sans,
+            fontSize: "0.9rem",
+            fontWeight: 600,
+          }}
+        >
+          {t("form.newRecipe")}
+        </button>
+      </div>
+
       <input
         type="search"
         className="recipe-search"
@@ -91,7 +139,8 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
           >
             {filtered.map((r) => {
               const active = r.id === activeId;
-              const fav = isFavorite("local", r.id);
+              const favKind = r.custom ? "custom" : "local";
+              const fav = isFavorite(favKind, r.id);
               return (
                 <li key={r.id} style={{ position: "relative" }}>
                   <button
@@ -108,7 +157,7 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
                       border: active ? `2px solid ${r.accent}` : "2px solid transparent",
                       background: active ? colors.surface : colors.tabIdle,
                       borderRadius: radius.tab,
-                      padding: "0.7rem 3.4rem 0.7rem 1rem",
+                      padding: r.custom ? "0.7rem 6.4rem 0.7rem 1rem" : "0.7rem 3.4rem 0.7rem 1rem",
                       boxShadow: active ? shadow.tab : "none",
                     }}
                   >
@@ -147,25 +196,54 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
                       </span>
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    className="fav-toggle"
-                    aria-pressed={fav}
-                    aria-label={
-                      fav
-                        ? t("favorite.removeAria", { name: r.name })
-                        : t("favorite.addAria", { name: r.name })
-                    }
-                    onClick={() => onToggleFavorite({ kind: "local", id: r.id })}
+                  <span
                     style={{
                       position: "absolute",
                       top: "50%",
                       right: 10,
                       transform: "translateY(-50%)",
+                      display: "flex",
+                      gap: 6,
                     }}
                   >
-                    <span aria-hidden="true">{fav ? "★" : "☆"}</span>
-                  </button>
+                    {r.custom && (
+                      <>
+                        <button
+                          type="button"
+                          className="fav-toggle"
+                          aria-label={t("form.editAria", { name: r.name })}
+                          onClick={() => onEditRecipe(r)}
+                        >
+                          <span aria-hidden="true">✏️</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="fav-toggle"
+                          aria-label={t("form.deleteAria", { name: r.name })}
+                          onClick={() => {
+                            if (window.confirm(t("form.deleteConfirm", { name: r.name }))) {
+                              onDeleteRecipe(r.id);
+                            }
+                          }}
+                        >
+                          <span aria-hidden="true">🗑️</span>
+                        </button>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      className="fav-toggle"
+                      aria-pressed={fav}
+                      aria-label={
+                        fav
+                          ? t("favorite.removeAria", { name: r.name })
+                          : t("favorite.addAria", { name: r.name })
+                      }
+                      onClick={() => onToggleFavorite({ kind: favKind, id: r.id })}
+                    >
+                      <span aria-hidden="true">{fav ? "★" : "☆"}</span>
+                    </button>
+                  </span>
                 </li>
               );
             })}

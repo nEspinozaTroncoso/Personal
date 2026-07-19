@@ -82,6 +82,14 @@ body {
   box-shadow: var(--shadow-tab);
 }
 
+.recipe-form-input {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.recipe-form-input:focus-visible {
+  border-color: var(--color-muted);
+  box-shadow: var(--shadow-tab);
+}
+
 .external-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -199,4 +207,5 @@ input[type="range"]::-moz-range-thumb {
   .external-card { transition: none; }
   .share-button { transition: none; }
   .fav-toggle { transition: none; }
+  .recipe-form-input { transition: none; }
 }

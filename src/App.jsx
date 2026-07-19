@@ -1,5 +1,7 @@
+import { useMemo, useState } from "react";
 import Header from "./components/Header.jsx";
 import RecipeSelector from "./components/RecipeSelector.jsx";
+import RecipeForm from "./components/RecipeForm.jsx";
 import WeightControl from "./components/WeightControl.jsx";
 import IngredientList from "./components/IngredientList.jsx";
 import StepList from "./components/StepList.jsx";
@@ -12,23 +14,54 @@ import { useTheme } from "./hooks/useTheme.js";
 import { useI18n } from "./hooks/useI18n.js";
 import { useImportedRecipe } from "./hooks/useImportedRecipe.js";
 import { useFavorites } from "./hooks/useFavorites.js";
+import { useCustomRecipes } from "./hooks/useCustomRecipes.js";
+import { RECIPES } from "./data/recipes.js";
+import { normalizeName } from "./lib/customRecipes.js";
 import { colors, fonts, layout } from "./styles/theme.js";
 
 export default function App() {
+  const { customRecipes, createRecipe, updateRecipe, deleteRecipe } = useCustomRecipes();
+  const allRecipes = useMemo(() => [...RECIPES, ...customRecipes], [customRecipes]);
   const { recipes, activeId, setActiveId, targetWeight, setTargetWeight, recipe, scaled } =
-    useRecipeScaling();
+    useRecipeScaling(allRecipes);
   const { theme, toggle } = useTheme();
   const { locale, toggle: toggleLocale, t } = useI18n();
   const { imported, importRecipe, clearImport } = useImportedRecipe();
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  // Elegir una receta de la casa descarta la importada y vuelve al calculador local.
+  // null = panel cerrado | { mode: "create" } | { mode: "edit", recipe }
+  const [formState, setFormState] = useState(null);
+
+  // Elegir una receta de la casa (o una custom) descarta la importada y vuelve al calculador local.
   const handleSelectLocal = (id) => { clearImport(); setActiveId(id); };
   // Cargar una externa: importa y sube a la zona principal.
   const handleImport = (detail) => {
     importRecipe(detail);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const handleNewRecipe = () => setFormState({ mode: "create" });
+  const handleEditRecipe = (r) => setFormState({ mode: "edit", recipe: r });
+  const handleCancelForm = () => setFormState(null);
+  const handleDeleteRecipe = (id) => {
+    deleteRecipe(id);
+    if (id === activeId) setActiveId(RECIPES[0].id);
+  };
+  const handleSubmitForm = (savedRecipe) => {
+    if (formState?.mode === "edit") updateRecipe(savedRecipe);
+    else createRecipe(savedRecipe);
+    setActiveId(savedRecipe.id);
+    setFormState(null);
+  };
+
+  // Nombres normalizados del universo completo (built-in + custom) para chequear duplicados en
+  // el formulario; al editar, se excluye el nombre de la propia receta (B-18).
+  const existingNames = useMemo(() => {
+    const own = formState?.mode === "edit" ? normalizeName(formState.recipe.name) : null;
+    return allRecipes
+      .map((r) => normalizeName(r.name))
+      .filter((n) => n !== own);
+  }, [allRecipes, formState]);
 
   return (
     <div
@@ -53,8 +86,29 @@ export default function App() {
         onSelect={handleSelectLocal}
         isFavorite={isFavorite}
         onToggleFavorite={toggleFavorite}
+        onNewRecipe={handleNewRecipe}
+        onEditRecipe={handleEditRecipe}
+        onDeleteRecipe={handleDeleteRecipe}
         t={t}
       />
+      {formState && (
+        <div
+          style={{
+            maxWidth: layout.maxWidth,
+            margin: "0.9rem auto 0",
+            padding: "0 1.5rem",
+          }}
+        >
+          <RecipeForm
+            mode={formState.mode}
+            initialRecipe={formState.mode === "edit" ? formState.recipe : null}
+            existingNames={existingNames}
+            onSubmit={handleSubmitForm}
+            onCancel={handleCancelForm}
+            t={t}
+          />
+        </div>
+      )}
       {!imported && (
         <WeightControl
           targetWeight={targetWeight}

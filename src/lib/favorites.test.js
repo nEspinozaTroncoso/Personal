@@ -14,12 +14,17 @@ describe("favoriteKey", () => {
   it("el namespace kind evita colisión entre un slug local y un idMeal numérico iguales", () => {
     expect(favoriteKey("local", "52977")).not.toBe(favoriteKey("mealdb", "52977"));
   });
+
+  it("el namespace kind evita colisión entre 'local' y 'custom' con el mismo id", () => {
+    expect(favoriteKey("local", "molde-7030")).not.toBe(favoriteKey("custom", "molde-7030"));
+  });
 });
 
 describe("isFavorite", () => {
   const list = [
     { kind: "local", id: "baguette" },
     { kind: "mealdb", id: "52977", name: "Bread pudding", thumb: "https://example.com/x.jpg" },
+    { kind: "custom", id: "custom-1737158400000-a1b9" },
   ];
 
   it("true si el registro está presente (local)", () => {
@@ -28,6 +33,10 @@ describe("isFavorite", () => {
 
   it("true si el registro está presente (mealdb)", () => {
     expect(isFavorite(list, "mealdb", "52977")).toBe(true);
+  });
+
+  it("true si el registro está presente (custom)", () => {
+    expect(isFavorite(list, "custom", "custom-1737158400000-a1b9")).toBe(true);
   });
 
   it("false si el registro está ausente", () => {
@@ -77,6 +86,15 @@ describe("toggleFavorite", () => {
       { kind: "mealdb", id: "52977", name: "X", thumb: "" },
     ]);
   });
+
+  it("da de alta un favorito custom sin colisionar con un local del mismo id", () => {
+    const list = [{ kind: "local", id: "molde-7030" }];
+    const next = toggleFavorite(list, { kind: "custom", id: "molde-7030" });
+    expect(next).toEqual([
+      { kind: "local", id: "molde-7030" },
+      { kind: "custom", id: "molde-7030" },
+    ]);
+  });
 });
 
 describe("sanitizeFavorites", () => {
@@ -122,5 +140,18 @@ describe("sanitizeFavorites", () => {
       { kind: "local", id: "baguette" },
       { kind: "mealdb", id: "52977", name: "Bread pudding", thumb: "https://x/y.jpg" },
     ]);
+  });
+
+  it("acepta kind:'custom' y lo guarda mínimo ({kind,id}), sin exigir name/thumb", () => {
+    const raw = [
+      { kind: "custom", id: "custom-1737158400000-a1b9", name: "ignorado", thumb: "ignorado" },
+    ];
+    expect(sanitizeFavorites(raw)).toEqual([
+      { kind: "custom", id: "custom-1737158400000-a1b9" },
+    ]);
+  });
+
+  it("descarta un registro kind:'custom' sin id", () => {
+    expect(sanitizeFavorites([{ kind: "custom" }])).toEqual([]);
   });
 });

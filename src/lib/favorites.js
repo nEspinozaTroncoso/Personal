@@ -1,9 +1,9 @@
-// Lógica pura de la lista de favoritos (locales + externas). Sin dependencias de React.
-// Un registro es { kind: "local", id } o { kind: "mealdb", id, name, thumb }.
+// Lógica pura de la lista de favoritos (locales + externas + custom). Sin dependencias de React.
+// Un registro es { kind: "local", id }, { kind: "custom", id } o { kind: "mealdb", id, name, thumb }.
 // La pertenencia se comprueba con una clave compuesta `${kind}:${id}` (favoriteKey), que
-// funciona como namespace: separa el espacio de slugs locales del de idMeal numéricos.
+// funciona como namespace: separa el espacio de slugs locales, ids de custom, e idMeal numéricos.
 
-const VALID_KINDS = new Set(["local", "mealdb"]);
+const VALID_KINDS = new Set(["local", "mealdb", "custom"]);
 
 // Clave compuesta que identifica un favorito de forma única entre local/mealdb.
 export function favoriteKey(kind, id) {
@@ -38,7 +38,7 @@ export function sanitizeFavorites(raw) {
     if (!VALID_KINDS.has(kind)) continue;
     if (id === undefined || id === null || id === "") continue;
     if (kind === "mealdb" && typeof name !== "string") continue;
-    if (kind === "local") {
+    if (kind === "local" || kind === "custom") {
       result.push({ kind, id: String(id) });
     } else {
       result.push({ kind, id: String(id), name, thumb });
