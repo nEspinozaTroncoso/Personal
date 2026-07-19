@@ -54,7 +54,7 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
           color: colors.ink,
           borderRadius: radius.pill,
           fontFamily: fonts.sans,
-          fontSize: "0.95rem",
+          fontSize: "1rem",
           outline: "none",
         }}
       />
@@ -72,64 +72,105 @@ export default function RecipeSelector({ recipes, activeId, onSelect, isFavorite
           {t("selector.noResults", { query: query.trim() })}
         </p>
       ) : (
-        <nav
+        <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "0.6rem",
+            maxHeight: "min(60vh, 560px)",
+            overflowY: "auto",
+            paddingRight: "0.2rem",
           }}
         >
-          {filtered.map((r) => {
-            const active = r.id === activeId;
-            const fav = isFavorite("local", r.id);
-            return (
-              <div key={r.id} style={{ position: "relative", minWidth: 150 }}>
-                <button
-                  className="recipe-tab"
-                  onClick={() => onSelect(r.id)}
-                  style={{
-                    cursor: "pointer",
-                    border: active ? `2px solid ${r.accent}` : "2px solid transparent",
-                    background: active ? colors.surface : colors.tabIdle,
-                    borderRadius: radius.tab,
-                    padding: "0.9rem 2.2rem 0.9rem 1.1rem",
-                    textAlign: "left",
-                    width: "100%",
-                    boxShadow: active ? shadow.tab : "none",
-                  }}
-                >
-                  <div
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {filtered.map((r) => {
+              const active = r.id === activeId;
+              const fav = isFavorite("local", r.id);
+              return (
+                <li key={r.id} style={{ position: "relative" }}>
+                  <button
+                    className="recipe-row touch"
+                    onClick={() => onSelect(r.id)}
+                    aria-current={active ? "true" : undefined}
                     style={{
-                      fontFamily: fonts.serif,
-                      fontWeight: 600,
-                      fontSize: "1.02rem",
-                      color: colors.ink,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.7rem",
+                      width: "100%",
+                      textAlign: "left",
+                      border: active ? `2px solid ${r.accent}` : "2px solid transparent",
+                      background: active ? colors.surface : colors.tabIdle,
+                      borderRadius: radius.tab,
+                      padding: "0.7rem 3.4rem 0.7rem 1rem",
+                      boxShadow: active ? shadow.tab : "none",
                     }}
                   >
-                    {r.name}
-                  </div>
-                  <div style={{ fontSize: "0.78rem", color: colors.muted, marginTop: 2 }}>
-                    {r.subtitle}
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="fav-toggle"
-                  aria-pressed={fav}
-                  aria-label={
-                    fav
-                      ? t("favorite.removeAria", { name: r.name })
-                      : t("favorite.addAria", { name: r.name })
-                  }
-                  onClick={() => onToggleFavorite({ kind: "local", id: r.id })}
-                  style={{ position: "absolute", top: 8, right: 8 }}
-                >
-                  <span aria-hidden="true">{fav ? "★" : "☆"}</span>
-                </button>
-              </div>
-            );
-          })}
-        </nav>
+                    {/* Swatch de acento: conserva la identidad por receta en formato compacto */}
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        flexShrink: 0,
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        background: r.accent,
+                      }}
+                    />
+                    <span style={{ minWidth: 0 }}>
+                      <span
+                        style={{
+                          display: "block",
+                          fontFamily: fonts.serif,
+                          fontWeight: 600,
+                          fontSize: "1.02rem",
+                          color: colors.ink,
+                        }}
+                      >
+                        {r.name}
+                      </span>
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "0.78rem",
+                          color: colors.muted,
+                          marginTop: 2,
+                        }}
+                      >
+                        {r.subtitle}
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="fav-toggle"
+                    aria-pressed={fav}
+                    aria-label={
+                      fav
+                        ? t("favorite.removeAria", { name: r.name })
+                        : t("favorite.addAria", { name: r.name })
+                    }
+                    onClick={() => onToggleFavorite({ kind: "local", id: r.id })}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      right: 10,
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <span aria-hidden="true">{fav ? "★" : "☆"}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ export default function Header({ theme, onToggleTheme, locale, onToggleLocale, t
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginBottom: "0.5rem" }}>
         <button
           type="button"
+          className="touch"
           onClick={onToggleLocale}
           aria-label={t("header.localeToggleAria")}
           style={{
@@ -29,6 +30,7 @@ export default function Header({ theme, onToggleTheme, locale, onToggleLocale, t
         </button>
         <button
           type="button"
+          className="touch"
           onClick={onToggleTheme}
           aria-label={isDark ? t("header.themeToLight") : t("header.themeToDark")}
           aria-pressed={isDark}

@@ -58,7 +58,7 @@ export default function ExternalRecipes({ t, onImport, isFavorite, onToggleFavor
           color: colors.ink,
           borderRadius: radius.pill,
           fontFamily: fonts.sans,
-          fontSize: "0.95rem",
+          fontSize: "1rem",
           outline: "none",
         }}
       />
@@ -73,7 +73,7 @@ export default function ExternalRecipes({ t, onImport, isFavorite, onToggleFavor
       {listStatus === "error" && (
         <div role="alert" style={statusStyle}>
           {t("external.listError", { error: listError })}{" "}
-          <button type="button" onClick={retryList} style={retryStyle}>{t("external.retry")}</button>
+          <button type="button" className="touch" onClick={retryList} style={retryStyle}>{t("external.retry")}</button>
         </div>
       )}
       {listStatus === "ready" && list.length === 0 && (
@@ -86,7 +86,7 @@ export default function ExternalRecipes({ t, onImport, isFavorite, onToggleFavor
           style={{
             display: "grid",
             gap: "0.9rem",
-            gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
           }}
         >
           {list.map((m) => {
@@ -159,12 +159,12 @@ export default function ExternalRecipes({ t, onImport, isFavorite, onToggleFavor
           {detailStatus === "error" && (
             <div role="alert" style={statusStyle}>
               {t("external.detailError", { error: detailError })}{" "}
-              <button type="button" onClick={retryDetail} style={retryStyle}>{t("external.retry")}</button>
+              <button type="button" className="touch" onClick={retryDetail} style={retryStyle}>{t("external.retry")}</button>
             </div>
           )}
           {detailStatus === "ready" && detail && (
             <>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
                 <h3 style={{ fontFamily: fonts.serif, fontSize: "1.3rem", margin: "0 0 0.2rem", color: colors.ink }}>
                   {detail.name}
                 </h3>
@@ -191,7 +191,7 @@ export default function ExternalRecipes({ t, onImport, isFavorite, onToggleFavor
                 </p>
               )}
 
-              <button type="button" onClick={() => onImport(detail)} style={importBtnStyle}>
+              <button type="button" className="touch" onClick={() => onImport(detail)} style={importBtnStyle}>
                 {t("external.import")}
               </button>
 

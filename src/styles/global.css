@@ -51,6 +51,17 @@ body {
   transform: translateY(-2px);
 }
 
+.recipe-row {
+  transition: box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.recipe-row:hover {
+  box-shadow: var(--shadow-tab);
+}
+.recipe-row:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-tab);
+}
+
 .recipe-search {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -119,6 +130,7 @@ input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
+  margin: 0;                          /* el navegador aplica ~2px por defecto, descentra la barra */
   border-radius: 3px;
   background: var(--color-border);   /* antes #d8ccb4 */
   outline: none;
@@ -156,8 +168,32 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+/* Targets táctiles ≥44px solo en dispositivos de puntero grueso (móvil/tablet).
+   El desktop (pointer: fine) queda igual. min-height/display no chocan con los
+   estilos inline (que solo fijan padding/border/font). */
+@media (pointer: coarse) {
+  .touch {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fav-toggle {
+    width: 44px;
+    height: 44px;
+    font-size: 1.35rem;
+  }
+  .recipe-search {
+    min-height: 44px;
+  }
+  /* Opcional pero recomendado: pulgar del slider más fácil de arrastrar */
+  input[type="range"]::-webkit-slider-thumb { width: 30px; height: 30px; }
+  input[type="range"]::-moz-range-thumb { width: 30px; height: 30px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .recipe-tab { transition: none; }
+  .recipe-row { transition: none; }
   body { transition: none; }
   .recipe-search { transition: none; }
   .external-card { transition: none; }

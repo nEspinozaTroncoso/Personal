@@ -44,7 +44,7 @@ export default function ShareButton({ activeId, targetWeight, t }) {
     >
       <button
         type="button"
-        className="share-button"
+        className="share-button touch"
         aria-label={t("share.ariaLabel")}
         onClick={handleClick}
         style={{
@@ -104,7 +104,7 @@ export default function ShareButton({ activeId, targetWeight, t }) {
               color: colors.ink,
               padding: "0.35rem 0.6rem",
               fontFamily: fonts.sans,
-              fontSize: "0.85rem",
+              fontSize: "1rem",
             }}
           />
         </div>

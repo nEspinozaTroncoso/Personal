@@ -4,13 +4,12 @@ export default function WeightControl({ targetWeight, onChange, accent, t }) {
   return (
     <section
       style={{
+        width: "calc(100% - 3rem)",
         maxWidth: layout.maxWidth,
         margin: "2.2rem auto 0",
         padding: "1.6rem 1.8rem",
         background: colors.surface,
         borderRadius: radius.card,
-        marginLeft: "1.5rem",
-        marginRight: "1.5rem",
         boxShadow: shadow.card,
       }}
     >
@@ -62,6 +61,7 @@ export default function WeightControl({ targetWeight, onChange, accent, t }) {
         {[500, 1000, 1500, 2000].map((w) => (
           <button
             key={w}
+            className="touch"
             onClick={() => onChange(w)}
             style={{
               cursor: "pointer",

@@ -40,7 +40,7 @@ export default function ImportedRecipe({ recipe, onClear, isFavorite, onToggleFa
               </p>
             )}
           </div>
-          <button type="button" onClick={onClear} style={clearStyle}>{t("imported.clear")}</button>
+          <button type="button" className="touch" onClick={onClear} style={clearStyle}>{t("imported.clear")}</button>
         </div>
 
         <p style={{ margin: "0.6rem 0 1rem", fontSize: "0.85rem", color: colors.muted, lineHeight: 1.5 }}>
