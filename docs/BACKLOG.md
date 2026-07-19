@@ -11,7 +11,9 @@ Prioridades: `P1` alto · `P2` medio · `P3` bajo. Estados: `pendiente` · `en p
 
 | ID | Título | Prioridad | Estado | Notas |
 |----|--------|-----------|--------|-------|
-| _(sin items activos)_ | | | | Todos los items del backlog están cerrados. |
+| B-18 | Crear/gestionar recetas locales del usuario desde la app (núcleo) | P2 | pendiente | **Pedido directo del usuario.** Poder agregar recetas propias (nombre, subtítulo/accent opcional, ingredientes con % de panadero, pasos) **desde la UI sin editar `src/data/recipes.js`**. App estática sin backend → persistir en `localStorage` (nueva clave sugerida `panapp-custom-recipes`, precedente B-03/B-08/B-13). Las custom deben convivir con las 6 built-in de `recipes.js` en el **mismo selector de lista** (B-17) y funcionar igual: escalado por `scaleRecipe`/`baker.js`, búsqueda (B-05), favoritos (B-13/B-14). **Requiere diseño → pasar a `plan-panadero`.** Puntos a resolver en el plan: **(1) captura**: ¿el usuario ingresa `pct` directo, o cantidades g/ml y la app deriva el `pct` (÷ peso de harina)? — la derivación es más amigable pero es B-19 (ver); este núcleo puede quedarse con `pct` directo. **(2) persistencia**: clave separada de las built-in pero fuente unificada en el selector sin duplicar lógica (ver cómo conviven `RECIPES` + custom). **(3) integración**: favoritos/búsqueda/escalado deben tratar custom y built-in por igual; **compartir por URL (B-08) se delega a B-20** (una custom solo existe en ese navegador). **(4) edición/borrado** de una custom ya creada y posible límite de cantidad. **(5) validación**: nombre duplicado, ingredientes vacíos, `pct` ≤ 0/negativos. **(6) UI**: formulario dedicado (pantalla/modal) vs. inline en el selector; respetar tokens de `theme.js` y accesibilidad de los formularios existentes (compartir/buscar). |
+| B-19 | Captura de recetas custom por cantidades (g/ml) con derivación automática de % de panadero | P3 | pendiente | **Mejora posterior de B-18** (depende de B-18). En vez de pedir el `pct`, el usuario ingresa cantidades reales (g/ml) de una receta base y la app calcula el `pct` de cada ingrediente dividiendo por el peso de harina (=100%). Más amigable para quien no maneja % de panadero, pero exige lógica nueva **probablemente en `src/lib/baker.js`** (función pura tipo `deriveBakerPct`) que **debe venir con tests** (regla CLAUDE.md sobre `baker.js`). **Requiere diseño → `plan-panadero`.** Separado del núcleo para no bloquear B-18. |
+| B-20 | Compartir por URL recetas custom (codificar la receta completa) | P3 | pendiente | **Extensión de B-18 + B-08** (depende de B-18). Una receta custom solo vive en el `localStorage` del navegador que la creó, así que el esquema de B-08 (referenciar por id + peso) no alcanza: habría que **codificar la receta completa en la URL** (serializar ingredientes/pasos, cuidar longitud de URL). **Puede terminar descartado** si el costo/complejidad no lo justifica. **Requiere diseño → `plan-panadero`** para decidir viabilidad vs. descartar. |
 
 ## Historial (hecho / descartado)
 
@@ -39,14 +41,21 @@ Prioridades: `P1` alto · `P2` medio · `P3` bajo. Estados: `pendiente` · `en p
 ---
 
 ### Siguiente item recomendado
-**No hay siguiente item: el backlog quedó sin items activos.** Con **B-15 cerrado** (era el último
-pendiente tras B-17), la tabla Activo está vacía y no queda nada por planificar ni implementar. No se
-fuerza una recomendación — este es el estado real del backlog.
+**B-18 — Crear/gestionar recetas locales del usuario (núcleo).** Es un pedido directo del usuario y
+entrega el mayor valor real del caso de uso principal (que la app sirva con las recetas propias del
+usuario, no solo las 6 de ejemplo). Se desglosó en tres items para no bloquear el núcleo: **B-18**
+(crear/persistir/editar/borrar + integración con selector, búsqueda, favoritos y escalado, con `pct`
+directo) es el que debe abordarse primero; **B-19** (captura por cantidades g/ml con derivación
+automática del `pct`) y **B-20** (compartir custom por URL) son mejoras posteriores que **dependen de
+B-18**.
 
-Si el usuario quiere seguir, los **candidatos futuros** anotados en el histórico son: traducir el
-contenido de recetas locales (`src/data/recipes.js`, ver B-07) y traducir/normalizar el contenido de
-TheMealDB (B-06/B-07). Cualquiera de ellos requeriría **abrir un item nuevo** (ID correlativo, no
-reutilizado) y, dado que tocan el modelo de datos, **pasar por `plan-panadero`** antes de implementar.
+**Recomendación de proceso:** B-18 **no está listo para implementar directo** — tiene 6 decisiones de
+diseño no triviales (modelo de captura, convivencia de fuentes de datos, edición/borrado, límites,
+validación, UI) que tocan el modelo de datos y varias features existentes. **Debe pasar por
+`plan-panadero` antes de tocar código.** B-19 y B-20 se planifican solo una vez cerrado B-18.
+
+Candidatos futuros anteriores siguen anotados en el histórico: traducir el contenido de recetas
+locales (`src/data/recipes.js`, ver B-07) y traducir/normalizar el contenido de TheMealDB (B-06/B-07).
 
 > **Nota:** el grupo **B-11/B-12/B-13/B-14** ("Evolución recetas externas + favoritos") quedó cerrado
 > en la tanda anterior. Candidatos futuros aún anotados en el histórico: traducir el contenido de
